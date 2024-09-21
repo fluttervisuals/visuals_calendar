@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import '../../types/calendar_format.types.dart';
 import '../../types/event.types.dart';
 import 'event_canvas.dart';
-import '../hours.dart';
+import 'hours.dart';
 
 /// The section of the calendar that displays the events.
 /// params [calendarFormat] The calendar format. [day, week]

@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../types/calendar_format.types.dart';
 import '../../types/event.types.dart';
-import '../dates_row.dart';
+import '../datesection/dates_row.dart';
 import 'events.dart';
 
 /// Displays the all day events row.
@@ -15,12 +15,15 @@ class AllDayEventsRow extends StatefulWidget {
   final List<DateTime> dates;
   // Calendar format
   final CalendarFormat calendarFormat;
+  // Loading state
+  final bool loading;
 
   const AllDayEventsRow({
     super.key,
     required this.events,
     required this.dates,
     required this.calendarFormat,
+    required this.loading,
   });
 
   @override
@@ -45,12 +48,27 @@ class AllDayEventsRowState extends State<AllDayEventsRow> {
     events = widget.events;
     dates = widget.dates;
     calendarFormat = widget.calendarFormat;
+
     List<Widget> dateTiles = dates.map((date) {
       return AllDayEvents(events: events, date: date);
     }).toList();
 
-    // Container with shadow under
-    return Padding(
+    if (widget.loading) {
+      return Padding(
+        padding: const EdgeInsets.only(top: 8.0, bottom: 8.0),
+        child: SizedBox(
+          height: 2,
+          child: LinearProgressIndicator(
+            color: Theme.of(context).colorScheme.primary.withOpacity(0.5),
+          ),
+        ),
+      );
+    }
+
+    return Container(
+      decoration: BoxDecoration(
+        border: Border(bottom: BorderSide(color: Colors.grey[300]!, width: 1)),
+      ),
       padding: const EdgeInsets.all(4.0),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,

@@ -11,6 +11,19 @@ class AllDayEventTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final TextTheme textTheme = Theme.of(context).textTheme;
+    final past = isEventBeforeToday(event);
+
+    final tileColor =
+        past ? event.color.withOpacity(0.2) : event.color.withOpacity(0.5);
+
+    final textColor = Theme.of(context).colorScheme.onSurface;
+
+    final titleStyle = textTheme.bodySmall?.copyWith(
+      color: textColor,
+      fontWeight: FontWeight.bold,
+    );
+
     return Padding(
       padding: const EdgeInsets.only(right: 4.0, top: 4.0),
       child: Container(
@@ -18,17 +31,13 @@ class AllDayEventTile extends StatelessWidget {
         height: 20,
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(4),
-          color:
-              isEventPast(event) ? event.color.withOpacity(0.5) : event.color,
+          color: tileColor,
         ),
         child: Padding(
           padding: const EdgeInsets.only(left: 4.0),
           child: Text(
             event.title,
-            style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                  color: isEventPast(event) ? Colors.grey[800] : Colors.white,
-                  fontWeight: FontWeight.bold,
-                ),
+            style: titleStyle,
             overflow: TextOverflow.ellipsis,
           ),
         ),

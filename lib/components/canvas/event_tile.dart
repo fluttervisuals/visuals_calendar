@@ -18,9 +18,50 @@ class EventTile extends StatelessWidget {
   Widget build(BuildContext context) {
     return SizedBox(
       width: double.infinity,
-      child: eventBuilder != null
-          ? eventBuilder!(context, event)
-          : DefaultTile(event: event),
+      child: (event.title == selectionID)
+          ? SelectionTile(event: event)
+          : eventBuilder != null
+              ? eventBuilder!(context, event)
+              : DefaultTile(event: event),
+    );
+  }
+}
+
+class SelectionTile extends StatelessWidget {
+  final Event event;
+  const SelectionTile({super.key, required this.event});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(4),
+        border: Border.all(color: Colors.grey[400]!, width: 2),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Padding(
+            padding: const EdgeInsets.only(left: 2.0, top: 2.0, right: 2.0),
+            child: Text(
+              '(No Title)',
+              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                    color: Theme.of(context).colorScheme.onSurface,
+                    fontWeight: FontWeight.bold,
+                  ),
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.only(left: 2.0, top: 2.0, right: 2.0),
+            child: Text(
+              '${DateFormat.Hm().format(event.start)} - ${DateFormat.Hm().format(event.end!)}',
+              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                    color: Theme.of(context).colorScheme.onSurface,
+                  ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
@@ -32,38 +73,60 @@ class DefaultTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final TextTheme textTheme = Theme.of(context).textTheme;
+
+    final past = isEventPast(event);
+
+    final tileColor =
+        past ? event.color.withOpacity(0.2) : event.color.withOpacity(0.5);
+
+    final textColor = Theme.of(context).colorScheme.onSurface;
+
+    final titleStyle = textTheme.bodySmall?.copyWith(
+      color: textColor,
+      fontWeight: FontWeight.bold,
+    );
+
+    final subtitleStyle = textTheme.bodySmall?.copyWith(color: textColor);
+
     return Container(
       decoration: BoxDecoration(
-        // If end date in the past, set color to grey.
-        color: isEventPast(event) ? event.color.withOpacity(0.5) : event.color,
+        color: tileColor,
         borderRadius: BorderRadius.circular(4),
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Padding(
-            padding: const EdgeInsets.all(2.0),
-            child: Text(
-              event.title,
-              style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: isEventPast(event) ? Colors.grey[800] : Colors.white,
-                    fontWeight: FontWeight.bold,
-                  ),
-            ),
+      child: ClipPath(
+        clipper: ShapeBorderClipper(
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(3)),
+        ),
+        child: Container(
+          decoration: BoxDecoration(
+            border: Border(left: BorderSide(color: tileColor, width: 4)),
           ),
-          Padding(
-            padding: const EdgeInsets.only(left: 2.0, right: 2.0),
-            child: Text(
-              '${DateFormat.Hm().format(event.start)} - ${DateFormat.Hm().format(
-                event.end ?? event.start.add(const Duration(hours: 1)),
-              )}',
-              style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: isEventPast(event) ? Colors.grey[800] : Colors.white,
-                    fontWeight: FontWeight.bold,
-                  ),
-            ),
-          )
-        ],
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Padding(
+                padding: const EdgeInsets.only(left: 2.0, top: 2.0, right: 2.0),
+                child: Text(event.title, style: titleStyle),
+              ),
+              if (event.location != null)
+                Padding(
+                  padding: const EdgeInsets.only(left: 2.0, right: 2.0),
+                  child: Text(event.location!, style: subtitleStyle),
+                ),
+              Padding(
+                padding: const EdgeInsets.only(left: 2.0, right: 2.0),
+                child: Text(DateFormat.Hm().format(event.start),
+                    style: subtitleStyle),
+              ),
+              if (event.description != null)
+                Padding(
+                  padding: const EdgeInsets.only(left: 2.0, right: 2.0),
+                  child: Text(event.description!, style: subtitleStyle),
+                ),
+            ],
+          ),
+        ),
       ),
     );
   }

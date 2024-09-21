@@ -19,9 +19,20 @@ bool isDateToday(DateTime date) {
 /// Returns true if the event is in the past
 /// (i.e. the end date is before the current date).
 /// params [Event] The event to check.
+/// returns [bool] True if the event is in the past.
 bool isEventPast(Event event) {
   return (event.end != null && event.end!.isBefore(DateTime.now())) ||
       event.start.add(const Duration(hours: 1)).isBefore(DateTime.now());
+}
+
+/// Returns true if the event is before today.
+/// params [Event] The event to check.
+/// returns [bool] True if the event is before today.
+bool isEventBeforeToday(Event event) {
+  DateTime now = DateTime.now();
+  DateTime today = DateTime(now.year, now.month, now.day);
+  return DateTime(event.start.year, event.start.month, event.start.day)
+      .isBefore(today);
 }
 
 /// Returns the dates to be displayed in the calendar.
@@ -76,4 +87,29 @@ List<DateTime> getDisplayedDates(
   }
 
   return dates;
+}
+
+/// Rounds down time to the nearest quarter.
+/// params [DateTime] date The date to round.
+/// returns [DateTime] The rounded date.
+DateTime roundUpQuarter(DateTime date) {
+  final minutes = date.minute;
+  if (minutes < 15) {
+    return DateTime(date.year, date.month, date.day, date.hour, 0);
+  } else if (minutes < 30) {
+    return DateTime(date.year, date.month, date.day, date.hour, 15);
+  } else if (minutes < 45) {
+    return DateTime(date.year, date.month, date.day, date.hour, 30);
+  } else {
+    return DateTime(date.year, date.month, date.day, date.hour, 45);
+  }
+}
+
+/// Returns the date time from the offset of the scroll.
+DateTime getDateTimeFromOffset(
+    double offset, double hourHeight, DateTime date) {
+  final hour = offset ~/ hourHeight;
+  final minute = ((offset % hourHeight) / hourHeight * 60).round();
+  return roundUpQuarter(
+      DateTime(date.year, date.month, date.day, hour, minute));
 }

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../functions/dates.dart';
 import '../../types/calendar_format.types.dart';
 import '../../types/event.types.dart';
 import 'event_column.dart';
@@ -7,7 +8,7 @@ import 'event_column.dart';
 /// Displays the event columns for the current dates.
 /// params list [DateTime] dates The dates to display.
 /// params [double] verticalScale The vertical scale for directional scrolling.
-class EventCanvas extends StatelessWidget {
+class EventCanvas extends StatefulWidget {
   // The events
   final List<Event> events;
   // The dates to display.
@@ -32,6 +33,13 @@ class EventCanvas extends StatelessWidget {
   });
 
   @override
+  State<StatefulWidget> createState() => EventCanvasState();
+}
+
+class EventCanvasState extends State<EventCanvas> {
+  Event? selection;
+
+  @override
   // Create event column of current dates.
   Widget build(BuildContext context) {
     // Initialize the vertical divider.
@@ -42,23 +50,32 @@ class EventCanvas extends StatelessWidget {
     );
 
     // Initialize the event columns of the current displayed dates.
-    List<Widget> dateTiles = [];
+    List<Widget> dailycolumn = [];
 
     // Loop through the dates of the current view.
-    for (int i = 0; i < dates.length; i++) {
+    for (int i = 0; i < widget.dates.length; i++) {
+      // Add the selection to the events if this day.
+      List<Event> addSelection =
+          (selection != null && isSameDate(widget.dates[i], selection!.start))
+              ? [...widget.events, selection!]
+              : widget.events;
+
       // Add the vertical divider between dates.
-      dateTiles.add(vDivider);
+      dailycolumn.add(vDivider);
       // Add the event column for the current date.
-      dateTiles.add(EventColumn(
-        events: events,
-        date: dates[i],
-        verticalScale: verticalScale,
-        calendarFormat: calendarFormat,
-        containerHeight: containerHeight,
-        eventBuilder: eventBuilder,
+      dailycolumn.add(EventColumn(
+        events: addSelection,
+        date: widget.dates[i],
+        verticalScale: widget.verticalScale,
+        calendarFormat: widget.calendarFormat,
+        containerHeight: widget.containerHeight,
+        eventBuilder: widget.eventBuilder,
+        selection: selection,
+        setSelection: (Event? selection) =>
+            setState(() => this.selection = selection),
       ));
     }
 
-    return Row(children: dateTiles);
+    return Row(children: dailycolumn);
   }
 }

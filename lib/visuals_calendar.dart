@@ -1,13 +1,11 @@
-library visuals_calendar;
-
 import 'package:flutter/material.dart';
+import 'package:flutter_visuals/functions/dates.dart';
+import 'package:flutter_visuals/types/calendar_format.types.dart';
 import 'package:intl/intl.dart';
 
 import 'components/canvas/calendar_section.dart';
-import 'components/dates_row.dart';
+import 'components/datesection/dates_row.dart';
 import 'components/headercanvas/events_row.dart';
-import 'functions/dates.dart';
-import 'types/calendar_format.types.dart';
 import 'types/event.types.dart';
 
 /// A Flutter Visuals Calendar Widget.
@@ -17,17 +15,29 @@ import 'types/event.types.dart';
 /// params [CalendarFormat] The calendar format. [day, week]
 class VisualsCalendar extends StatefulWidget {
   // The events.
-  final List<Event> events;
+  final List<Event>? events;
+  // Future events
+  final Future<List<Event>>? futureEvents;
   // The calendar format. [day, week]
   final CalendarFormat calendarFormat;
   // The event tile builder.
   final Widget Function(BuildContext context, Event event)? eventBuilder;
+  // App bar builder.
+  final AppBar Function(
+    BuildContext context,
+    String currentMonth,
+    void Function() setToday,
+    void Function(CalendarFormat) setFormat,
+    List<CalendarFormat> avalableFormats,
+  )? appBarBuilder;
 
   const VisualsCalendar({
     super.key,
     required this.calendarFormat,
-    required this.events,
+    this.events,
+    this.futureEvents,
     this.eventBuilder,
+    this.appBarBuilder,
   });
 
   @override
@@ -35,8 +45,14 @@ class VisualsCalendar extends StatefulWidget {
 }
 
 class VisualsCalendarState extends State<VisualsCalendar> {
-  // The events.
-  late List<Event> events;
+  // Initialize the events.
+  List<Event> events = [];
+
+  // Future events
+  late Future<List<Event>> futureEvents;
+
+  // The loading state.
+  bool loading = false;
 
   // Create a page controller to control the calendar pages.
   PageController pageController = PageController(initialPage: 100);
@@ -48,15 +64,25 @@ class VisualsCalendarState extends State<VisualsCalendar> {
   String focusedMonth = DateFormat.MMMM().format(DateTime.now());
 
   // Initialize the calendar format.
-  CalendarFormat _calendarFormat = CalendarFormat.week;
+  CalendarFormat _calendarFormat = CalendarFormat.threeDays;
 
   @override
   void initState() {
     super.initState();
-    // Set the events.
-    events = widget.events;
-    // Set the calendar format.
-    _calendarFormat = widget.calendarFormat;
+    if (widget.events != null) {
+      events = widget.events!;
+    }
+    // Set the future events.
+    if (widget.futureEvents != null) {
+      futureEvents = widget.futureEvents!;
+      loading = true;
+      futureEvents.then((value) {
+        setState(() {
+          events = value;
+          loading = false;
+        });
+      });
+    }
   }
 
   // Set the calendar format.
@@ -93,13 +119,20 @@ class VisualsCalendarState extends State<VisualsCalendar> {
 
   @override
   Widget build(BuildContext context) {
-    events = widget.events;
     return Scaffold(
-      appBar: AppBar(
-        centerTitle: false,
-        title: Text(focusedMonth),
-        actions: getActions(),
-      ),
+      appBar: widget.appBarBuilder != null
+          ? widget.appBarBuilder!(
+              context,
+              focusedMonth,
+              setToday,
+              setFormat,
+              calendarFormatInts.keys.toList(),
+            )
+          : AppBar(
+              centerTitle: false,
+              title: Text(focusedMonth),
+              actions: getActions(),
+            ),
       body: PageView.builder(
         controller: pageController,
         onPageChanged: setFocusedMonth,
@@ -128,6 +161,7 @@ class VisualsCalendarState extends State<VisualsCalendar> {
                     events.where((event) => event.isAllDay == true).toList(),
                 dates: dates,
                 calendarFormat: _calendarFormat,
+                loading: loading,
               ),
               // Display the calendar section.
               Expanded(

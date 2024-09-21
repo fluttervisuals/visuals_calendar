@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../types/calendar_format.types.dart';
+import '../../types/calendar_format.types.dart';
 import 'date_tile.dart';
 
 /// Displays a row of dates in the calendar.
@@ -21,7 +21,9 @@ class DatesRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     List<Widget> dateTiles = dates.map((date) {
-      return Expanded(child: DateTile(date: date));
+      return Expanded(
+        child: DateTile(date: date),
+      );
     }).toList();
 
     if (calendarFormat == CalendarFormat.day) {
