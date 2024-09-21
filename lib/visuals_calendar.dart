@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_visuals/functions/dates.dart';
-import 'package:flutter_visuals/types/calendar_format.types.dart';
 import 'package:intl/intl.dart';
 
 import 'components/canvas/calendar_section.dart';
 import 'components/datesection/dates_row.dart';
 import 'components/headercanvas/events_row.dart';
+import 'functions/dates.dart';
+import 'types/calendar_format.types.dart';
 import 'types/event.types.dart';
 
 /// A Flutter Visuals Calendar Widget.

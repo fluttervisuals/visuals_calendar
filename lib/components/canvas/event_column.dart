@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_visuals/functions/events.dart';
 
 import '../../functions/calendar_organizer.dart';
 import '../../functions/dates.dart';
+import '../../functions/events.dart';
 import '../../types/calendar_format.types.dart';
 import '../../types/event.types.dart';
 import 'current_time_marker.dart';
