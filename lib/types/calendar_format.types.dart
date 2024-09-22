@@ -4,8 +4,6 @@ enum CalendarFormat {
   day,
   // 7 days displayed
   week,
-  // 5 days displayed
-  weekDays,
   // 3 days displayed
   threeDays,
 }
@@ -14,6 +12,5 @@ enum CalendarFormat {
 final Map<CalendarFormat, int> calendarFormatInts = {
   CalendarFormat.day: 1,
   CalendarFormat.week: 7,
-  CalendarFormat.weekDays: 5,
   CalendarFormat.threeDays: 3,
 };

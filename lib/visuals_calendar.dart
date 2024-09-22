@@ -2,9 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
 import 'components/canvas/calendar_section.dart';
-import 'components/datesection/dates_row.dart';
-import 'components/headercanvas/events_row.dart';
-import 'functions/dates.dart';
+import 'components/canvas/hours.dart';
+import 'defaults/action_menu.dart';
+import 'functions/focused_day.dart';
+import 'functions/max_daily_events.dart';
+import 'functions/page_index.dart';
 import 'types/calendar_format.types.dart';
 import 'types/event.types.dart';
 
@@ -13,6 +15,8 @@ import 'types/event.types.dart';
 /// The calendar can be displayed in day or week format.
 /// params [Event] The events to display.
 /// params [CalendarFormat] The calendar format. [day, week]
+/// params [Widget] The event tile builder.
+/// params [AppBar] The app bar builder.
 class VisualsCalendar extends StatefulWidget {
   // The events.
   final List<Event>? events;
@@ -54,23 +58,60 @@ class VisualsCalendarState extends State<VisualsCalendar> {
   // The loading state.
   bool loading = false;
 
-  // Create a page controller to control the calendar pages.
-  PageController pageController = PageController(initialPage: 100);
-
-  // Initialize the focused data, represents current day.
-  DateTime focusedDate = DateTime.now();
-
   // Initialize the focused month, used for displaying month in focus.
   String focusedMonth = DateFormat.MMMM().format(DateTime.now());
 
   // Initialize the calendar format.
-  CalendarFormat _calendarFormat = CalendarFormat.threeDays;
+  late CalendarFormat _calendarFormat;
+
+  // Initialize the page controller
+  late PageController pageController;
+
+  // The page index
+  late int pageIndex;
+
+  // Main scroll controller
+  final ScrollController _mainController = ScrollController(
+    initialScrollOffset: 750,
+  );
+
+  // The scroll base, used for directional scaling.
+  double _scrollBase = 450;
+
+  // Default container height, used for directional scaling.
+  double _containerHeight = 2400;
+
+  // Default base height, used for directional scaling.
+  double _baseHeight = 100.0;
+
+  // Set the daily expanded state.
+  bool dailyExpanded = false;
+
+  // Set the max daily events.
+  int maxDailyEvents = 0;
 
   @override
   void initState() {
     super.initState();
+    // Set the calendar format.
+    _calendarFormat = widget.calendarFormat;
+
+    // Set the page index.
+    pageIndex = getPageIndex(_calendarFormat);
+
+    // Initialize the page controller.
+    pageController = PageController(
+      keepPage: false,
+      initialPage: pageIndex,
+      viewportFraction: 1 / calendarFormatInts[widget.calendarFormat]!,
+    );
+
+    // Set the events
     if (widget.events != null) {
       events = widget.events!;
+      setState(() {
+        maxDailyEvents = getMaxDailyEvents(events, pageIndex, _calendarFormat);
+      });
     }
     // Set the future events.
     if (widget.futureEvents != null) {
@@ -80,6 +121,8 @@ class VisualsCalendarState extends State<VisualsCalendar> {
         setState(() {
           events = value;
           loading = false;
+          maxDailyEvents =
+              getMaxDailyEvents(events, pageIndex, _calendarFormat);
         });
       });
     }
@@ -90,6 +133,12 @@ class VisualsCalendarState extends State<VisualsCalendar> {
     setState(() {
       _calendarFormat = format;
     });
+
+    pageController = PageController(
+      keepPage: false,
+      initialPage: getPageIndex(format),
+      viewportFraction: 1 / calendarFormatInts[format]!,
+    );
   }
 
   // Set the page to the current date.
@@ -101,19 +150,44 @@ class VisualsCalendarState extends State<VisualsCalendar> {
     );
   }
 
-  // Set the focused month based on the index.
-  // This is used to update the month in the app bar.
-  void setFocusedMonth(int index) {
-    // Normalize the index.
-    final nIndex = index - 100;
-    // Get the date based on the index.
-    DateTime nDate = focusedDate.add(
-      Duration(days: calendarFormatInts[_calendarFormat]! * nIndex),
-    );
+  // Set the daily expanded state.
+  void setDailyExpanded() {
+    setState(() {
+      dailyExpanded = !dailyExpanded;
+    });
+  }
+
+  // Set the page index, updated when page is changed.
+  void setPageIndex(int index) {
+    setState(() {
+      pageIndex = index;
+      maxDailyEvents = getMaxDailyEvents(events, index, _calendarFormat);
+      focusedMonth =
+          DateFormat.MMMM().format(getFocusedDate(index, _calendarFormat));
+    });
+  }
+
+  // Update the container size based on the vertical scale from pinch zoom.
+  void _updateContainerSize(double verticalScale) {
+    // Jump to the new position based on the vertical scale.
+    _mainController
+        .jumpTo(_scrollBase + (_baseHeight / 2) * (verticalScale - 1));
+
+    // Calculate the new height based on the vertical scale.
+    final newHeight = _baseHeight * verticalScale;
 
     setState(() {
-      // Update the focused month with formatted date.
-      focusedMonth = DateFormat.MMMM().format(nDate);
+      if (newHeight < 1200) {
+        // Set the min height to 800 px.
+        _containerHeight = 1200;
+        return;
+      }
+      if (newHeight > 4800) {
+        // Set the max height to 3000 px.
+        _containerHeight = 4800;
+        return;
+      }
+      _containerHeight = newHeight;
     });
   }
 
@@ -131,85 +205,47 @@ class VisualsCalendarState extends State<VisualsCalendar> {
           : AppBar(
               centerTitle: false,
               title: Text(focusedMonth),
-              actions: getActions(),
+              actions: getActions(setToday, setFormat),
+              forceMaterialTransparency: true,
             ),
-      body: PageView.builder(
-        controller: pageController,
-        onPageChanged: setFocusedMonth,
-        itemBuilder: (context, index) {
-          // Normalize the index.
-          final normalizedIndex = index - 100;
-
-          // Get the dates to be displayed, this varies based on calendar format.
-          List<DateTime> dates = getDisplayedDates(
-            focusedDate,
-            _calendarFormat,
-            normalizedIndex,
-          );
-
-          return Column(
-            children: [
-              // Display the dates row.
-              if (_calendarFormat != CalendarFormat.day)
-                DatesRow(
-                  calendarFormat: _calendarFormat,
-                  dates: dates,
+      body: Column(
+        children: [
+          if (loading)
+            const LinearProgressIndicator(backgroundColor: Colors.transparent),
+          Expanded(
+            child: Row(
+              children: [
+                HourColumn(
+                  height: _containerHeight,
+                  scrollController: _mainController,
+                  setDailyExpanded: setDailyExpanded,
+                  maxDailyEvents: maxDailyEvents,
+                  isDailyExpanded: dailyExpanded,
                 ),
-              // Display the all day events row.
-              AllDayEventsRow(
-                events:
-                    events.where((event) => event.isAllDay == true).toList(),
-                dates: dates,
-                calendarFormat: _calendarFormat,
-                loading: loading,
-              ),
-              // Display the calendar section.
-              Expanded(
-                child: CalendarSection(
-                  events:
-                      events.where((event) => event.isAllDay != true).toList(),
-                  calendarFormat: _calendarFormat,
-                  dates: dates,
-                  eventBuilder: widget.eventBuilder,
+                Expanded(
+                  child: CalendarSection(
+                    events: events,
+                    calendarFormat: _calendarFormat,
+                    pageController: pageController,
+                    mainController: _mainController,
+                    onScaleUpdate: (ScaleUpdateDetails details) {
+                      _updateContainerSize(details.verticalScale);
+                    },
+                    onScaleStart: (ScaleStartDetails details) {
+                      _baseHeight = _containerHeight;
+                      _scrollBase = _mainController.offset;
+                    },
+                    onPageChanged: setPageIndex,
+                    maxDailyEvents: maxDailyEvents,
+                    dailyEventsExpanded: dailyExpanded,
+                    height: _containerHeight,
+                  ),
                 ),
-              ),
-            ],
-          );
-        },
+              ],
+            ),
+          ),
+        ],
       ),
     );
-  }
-
-  // Get the actions for the app bar.
-  List<Widget> getActions() {
-    return [
-      IconButton(
-        icon: const Icon(Icons.today),
-        onPressed: setToday,
-      ),
-      PopupMenuButton<CalendarFormat>(
-        onSelected: setFormat,
-        itemBuilder: (context) {
-          return [
-            const PopupMenuItem(
-              value: CalendarFormat.day,
-              child: Text('Day'),
-            ),
-            const PopupMenuItem(
-              value: CalendarFormat.threeDays,
-              child: Text('3 Days'),
-            ),
-            const PopupMenuItem(
-              value: CalendarFormat.week,
-              child: Text('Week'),
-            ),
-            const PopupMenuItem(
-              value: CalendarFormat.weekDays,
-              child: Text('Week days'),
-            ),
-          ];
-        },
-      ),
-    ];
   }
 }

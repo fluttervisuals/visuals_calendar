@@ -18,8 +18,6 @@ class EventColumn extends StatefulWidget {
   final List<Event> events;
   // The date of the events.
   final DateTime date;
-  // The vertical scale, used for directional scaling.
-  final double verticalScale;
   // Calendar Format
   final CalendarFormat calendarFormat;
   // Container height
@@ -35,7 +33,6 @@ class EventColumn extends StatefulWidget {
     super.key,
     required this.events,
     required this.date,
-    required this.verticalScale,
     required this.calendarFormat,
     required this.containerHeight,
     this.eventBuilder,
@@ -126,37 +123,42 @@ class EventColumnState extends State<EventColumn> {
       }
     }
 
-    return Expanded(
-      child: GestureDetector(
-        onLongPressDown: setSelectionStart,
-        onLongPressMoveUpdate: setNewSelection,
-        child: Container(
-          // Workaround for the GestureDetector to detect content outside of widgets.
-          color: Theme.of(context).scaffoldBackgroundColor.withOpacity(0.01),
-          child: Stack(
-            children: [
-              Positioned(
-                child: Column(
-                  children: [
-                    for (int i = 0; i < 24; i++)
-                      Expanded(
-                        child: Container(
-                          alignment: Alignment.topCenter,
-                          child: const Divider(
-                            color: Colors.grey,
-                            thickness: 0.2,
+    return GestureDetector(
+      onLongPressDown: setSelectionStart,
+      onLongPressMoveUpdate: setNewSelection,
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const VerticalDivider(thickness: 0.2, width: 1),
+          Expanded(
+            child: Container(
+              // Workaround for the GestureDetector to detect content outside of widgets.
+              color: Theme.of(context).scaffoldBackgroundColor,
+              child: Stack(
+                children: [
+                  Positioned(
+                    child: Column(
+                      children: [
+                        for (int i = 0; i < 24; i++)
+                          Expanded(
+                            child: Container(
+                              alignment: Alignment.topCenter,
+                              child: const Divider(
+                                thickness: 0.2,
+                              ),
+                            ),
                           ),
-                        ),
-                      ),
-                  ],
-                ),
+                      ],
+                    ),
+                  ),
+                  ...eventTiles,
+                  if (isDateToday(widget.date))
+                    CurrentTimeMarker(hourHeight: hourHeight),
+                ],
               ),
-              ...eventTiles,
-              if (isDateToday(widget.date))
-                CurrentTimeMarker(hourHeight: hourHeight),
-            ],
+            ),
           ),
-        ),
+        ],
       ),
     );
   }

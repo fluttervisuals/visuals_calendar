@@ -27,7 +27,6 @@ class DateTile extends StatelessWidget {
       children: [
         // Name of day in short format (e.g. Mon)
         Text(DateFormat('EEE').format(date), style: textStyle),
-
         // Date number inside a circle
         Container(
           width: 40,

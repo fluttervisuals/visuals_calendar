@@ -1,8 +1,8 @@
 import '../types/event.types.dart';
 
-// Iterates through  the daily events and organizes them into a grid.
-// We need this to handle overlapping of events.
-// params [events] The events to organize.
+/// Iterates through  the daily events and organizes them into a grid.
+/// We need this to handle overlapping of events.
+/// params [Event] The events to organize.
 List<List<Event?>> getCalendarGrid(
   // The events to organize.
   List<Event> events,

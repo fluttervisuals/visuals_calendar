@@ -12,23 +12,26 @@ class EventCanvas extends StatefulWidget {
   // The events
   final List<Event> events;
   // The dates to display.
-  final List<DateTime> dates;
-  // The vertical scale, used for directional scaling.
-  final double verticalScale;
+  final DateTime date;
   // The calendar format.
   final CalendarFormat calendarFormat;
   // The container height, used for directional scaling.
   final double containerHeight;
+  // Current selection for adding a new event.
+  final Event? selection;
+  // Set the selection for adding a new event.
+  final void Function(Event? selection) setSelection;
   // The event tile builder.
   final Widget Function(BuildContext context, Event event)? eventBuilder;
 
   const EventCanvas({
     super.key,
     required this.events,
-    required this.dates,
-    required this.verticalScale,
+    required this.date,
     required this.calendarFormat,
     required this.containerHeight,
+    required this.setSelection,
+    this.selection,
     this.eventBuilder,
   });
 
@@ -37,45 +40,23 @@ class EventCanvas extends StatefulWidget {
 }
 
 class EventCanvasState extends State<EventCanvas> {
-  Event? selection;
-
   @override
   // Create event column of current dates.
   Widget build(BuildContext context) {
-    // Initialize the vertical divider.
-    const vDivider = VerticalDivider(
-      color: Colors.grey,
-      thickness: 0.2,
-      width: 0,
+    // Add the selection to the events if this day.
+    List<Event> addSelection = (widget.selection != null &&
+            isSameDate(widget.date, widget.selection!.start))
+        ? [...widget.events, widget.selection!]
+        : widget.events;
+
+    return EventColumn(
+      events: addSelection,
+      date: widget.date,
+      calendarFormat: widget.calendarFormat,
+      containerHeight: widget.containerHeight,
+      eventBuilder: widget.eventBuilder,
+      selection: widget.selection,
+      setSelection: (Event? selection) => widget.setSelection(selection),
     );
-
-    // Initialize the event columns of the current displayed dates.
-    List<Widget> dailycolumn = [];
-
-    // Loop through the dates of the current view.
-    for (int i = 0; i < widget.dates.length; i++) {
-      // Add the selection to the events if this day.
-      List<Event> addSelection =
-          (selection != null && isSameDate(widget.dates[i], selection!.start))
-              ? [...widget.events, selection!]
-              : widget.events;
-
-      // Add the vertical divider between dates.
-      dailycolumn.add(vDivider);
-      // Add the event column for the current date.
-      dailycolumn.add(EventColumn(
-        events: addSelection,
-        date: widget.dates[i],
-        verticalScale: widget.verticalScale,
-        calendarFormat: widget.calendarFormat,
-        containerHeight: widget.containerHeight,
-        eventBuilder: widget.eventBuilder,
-        selection: selection,
-        setSelection: (Event? selection) =>
-            setState(() => this.selection = selection),
-      ));
-    }
-
-    return Row(children: dailycolumn);
   }
 }

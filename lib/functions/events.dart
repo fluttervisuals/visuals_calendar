@@ -1,4 +1,3 @@
-// Filter the events for the current date.
 import '../types/event.types.dart';
 
 /// Filter the events for the current date.

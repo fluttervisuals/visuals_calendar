@@ -1,132 +1,146 @@
 import 'package:flutter/material.dart';
 
+import '../../functions/focused_day.dart';
+import '../../functions/header_height.dart';
 import '../../types/calendar_format.types.dart';
 import '../../types/event.types.dart';
+import '../datesection/date_tile.dart';
+import '../alldayevents/events.dart';
 import 'event_canvas.dart';
-import 'hours.dart';
 
-/// The section of the calendar that displays the events.
-/// params [calendarFormat] The calendar format. [day, week]
-/// params [dates] The dates to display.
 class CalendarSection extends StatefulWidget {
-  // The events.
   final List<Event> events;
-  // The calendar format. [day, week]
   final CalendarFormat calendarFormat;
-  // The dates to display.
-  final List<DateTime> dates;
-  // The event tile builder.
+  final ScrollController mainController;
+  final Function(ScaleUpdateDetails) onScaleUpdate;
+  final Function(ScaleStartDetails) onScaleStart;
+  final double height;
+  final PageController pageController;
+  final Function(int) onPageChanged;
+  final int maxDailyEvents;
+  final bool dailyEventsExpanded;
   final Widget Function(BuildContext context, Event event)? eventBuilder;
 
   const CalendarSection({
     super.key,
     required this.events,
     required this.calendarFormat,
-    required this.dates,
+    required this.mainController,
+    required this.onScaleUpdate,
+    required this.onScaleStart,
+    required this.height,
+    required this.pageController,
+    required this.onPageChanged,
+    required this.maxDailyEvents,
+    required this.dailyEventsExpanded,
     this.eventBuilder,
   });
 
   @override
-  State<StatefulWidget> createState() => _CalendarSectionState();
+  State<StatefulWidget> createState() => CalendarSectionState();
 }
 
-class _CalendarSectionState extends State<CalendarSection> {
-  // Initialize the events
-  late List<Event> events;
-  // Initialize the dates
-  late List<DateTime> dates;
-  // Initialize the calendar format
-  late CalendarFormat calendarFormat;
-  // Initialize the scroll controller
-  final ScrollController _scrollController = ScrollController();
-  // Initialize the scroll base, used for directional scaling.
-  double _scrollBase = 450;
-  // Initialize the container height, used for directional scaling.
-  double _containerHeight = 2400;
-  // Initialize the base height, used for directional scaling.
-  double _baseHeight = 100.0;
-  // Initialize the vertical scale, used for directional scaling.
-  double _verticalScale = 1.0;
+class CalendarSectionState extends State<CalendarSection> {
+  // Current selection for adding a new event.
+  Event? selection;
 
-  // Initialize the calendar state.
   @override
   void initState() {
     super.initState();
-    // Set the events.
-    events = widget.events;
-    // Set the dates.
-    dates = widget.dates;
-    // Set the calendar format.
-    calendarFormat = widget.calendarFormat;
-    // Jump to the 450th position in the scroll controller.
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      _scrollController.jumpTo(_scrollBase);
-    });
   }
 
-  // Update the container size based on the vertical scale from pinch zoom.
-  void _updateContainerSize(double verticalScale) {
-    // Jump to the new position based on the vertical scale.
-    _scrollController
-        .jumpTo(_scrollBase + (_baseHeight / 2) * (verticalScale - 1));
-
-    // Calculate the new height based on the vertical scale.
-    final newHeight = _baseHeight * verticalScale;
-
+  // Set the current selection for adding a new event.
+  void setSelection(Event? selection) {
     setState(() {
-      // Set the new vertical scale.
-      _verticalScale = verticalScale;
-
-      if (newHeight < 1200) {
-        // Set the min height to 800 px.
-        _containerHeight = 1200;
-        return;
-      }
-      if (newHeight > 4800) {
-        // Set the max height to 3000 px.
-        _containerHeight = 4800;
-        return;
-      }
-      _containerHeight = newHeight;
+      this.selection = selection;
     });
   }
 
   @override
   Widget build(BuildContext context) {
-    dates = widget.dates;
-    calendarFormat = widget.calendarFormat;
-    events = widget.events;
-    return SingleChildScrollView(
-      controller: _scrollController,
-      child: GestureDetector(
-        onScaleUpdate: (ScaleUpdateDetails details) {
-          _updateContainerSize(details.verticalScale);
-        },
-        onScaleStart: (ScaleStartDetails details) {
-          _baseHeight = _containerHeight;
-          _scrollBase = _scrollController.position.pixels;
-        },
-        child: Container(
-          color: Theme.of(context).scaffoldBackgroundColor,
-          height: _containerHeight,
-          child: Row(
-            mainAxisSize: MainAxisSize.max,
-            children: [
-              const HourColumn(),
-              Expanded(
-                child: EventCanvas(
-                  events: events,
-                  dates: dates,
-                  verticalScale: _verticalScale,
-                  calendarFormat: calendarFormat,
-                  containerHeight: _containerHeight,
-                  eventBuilder: widget.eventBuilder,
+    return PageView.builder(
+      controller: widget.pageController,
+      onPageChanged: (index) => widget.onPageChanged(index),
+      itemBuilder: (context, index) {
+        // Get the dates to be displayed, this varies based on calendar format.
+        DateTime date = getFocusedDate(index, widget.calendarFormat);
+
+        // Initialize new controller and put in group
+        final controller = ScrollController(
+          initialScrollOffset: widget.mainController.offset,
+        );
+
+        // Listen to the new controller and update the main controller.
+        controller.addListener(() {
+          if (widget.mainController.hasClients &&
+              controller.offset != widget.mainController.offset) {
+            widget.mainController.jumpTo(controller.offset);
+          }
+        });
+
+        // Listen to the main controller and update the new controller, but not if the change is because a change in this widget.
+        widget.mainController.addListener(() {
+          if (controller.hasClients &&
+              widget.mainController.offset != controller.offset) {
+            controller.jumpTo(widget.mainController.offset);
+          }
+        });
+
+        return Column(
+          children: [
+            // Display the dates row.
+            SizedBox(height: 60, child: DateTile(date: date)),
+            // Display the all day events.
+            Container(
+              height: widget.dailyEventsExpanded
+                  ? getExpandedHeaderHeight(widget.maxDailyEvents)
+                  : getHeaderHeight(widget.maxDailyEvents),
+              padding: const EdgeInsets.only(left: 4.0, top: 4.0),
+              child: AllDayEvents(
+                events: widget.events
+                    .where((event) => event.isAllDay == true)
+                    .toList(),
+                date: date,
+                dailyEventsExpanded: widget.dailyEventsExpanded,
+              ),
+            ),
+            const Divider(
+              height: 1,
+              thickness: 1,
+            ),
+            // Display the calendar section.
+            Expanded(
+              child: SingleChildScrollView(
+                physics: const ClampingScrollPhysics(),
+                controller: controller,
+                child: GestureDetector(
+                  onScaleUpdate: (ScaleUpdateDetails details) {
+                    widget.onScaleUpdate(details);
+                  },
+                  onScaleStart: (ScaleStartDetails details) {
+                    widget.onScaleStart(details);
+                  },
+                  child: Container(
+                    color: Theme.of(context).scaffoldBackgroundColor,
+                    height: widget.height,
+                    child: EventCanvas(
+                      events: widget.events
+                          .where((event) => event.isAllDay != true)
+                          .toList(),
+                      date: date,
+                      calendarFormat: widget.calendarFormat,
+                      containerHeight: widget.height,
+                      selection: selection,
+                      setSelection: setSelection,
+                      eventBuilder: widget.eventBuilder,
+                    ),
+                  ),
                 ),
               ),
-            ],
-          ),
-        ),
-      ),
+            ),
+          ],
+        );
+      },
     );
   }
 }
