@@ -59,7 +59,7 @@ class VisualsApp extends StatelessWidget {
 }
 ```
 
-# Event Type Documentation
+## Event Type Documentation
 
 The `Event` class represents a calendar event with a start and end time, title, color, and other optional properties like location and description.
 
