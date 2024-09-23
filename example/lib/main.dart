@@ -29,7 +29,7 @@ class VisualsApp extends StatelessWidget {
     return Scaffold(
       body: VisualsCalendar(
         events: getMockEvents(),
-        calendarFormat: CalendarFormat.week,
+        defaultFormat: CalendarFormat.week,
       ),
     );
   }

@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../../theme.dart';
+import '../../types/calendar_format.types.dart';
 import '../../types/event.types.dart';
 import 'event_tile.dart';
 
@@ -7,14 +9,24 @@ import 'event_tile.dart';
 /// params [Event] events The events to display.
 /// params [DateTime] date The date to display.
 class AllDayEvents extends StatelessWidget {
+  // The events to display.
   final List<Event> events;
+  // The date to display.
   final DateTime date;
+  // If the daily events are expanded.
   final bool dailyEventsExpanded;
+  // The calendar format. [day, week]
+  final CalendarFormat calendarFormat;
+  // The style.
+  final CalendarStyle? style;
+
   const AllDayEvents({
     super.key,
     required this.events,
     required this.date,
     required this.dailyEventsExpanded,
+    required this.calendarFormat,
+    this.style,
   });
 
   @override
@@ -26,13 +38,22 @@ class AllDayEvents extends StatelessWidget {
     }).toList();
 
     List<Widget> eventTiles = currentEvents.map((event) {
-      return AllDayEventTile(event: event);
+      return AllDayEventTile(event: event, style: style);
     }).toList();
+
+    int numEvents = currentEvents.length;
+    int maxEvents = calendarFormat == CalendarFormat.day ? 3 : 2;
 
     if (eventTiles.isEmpty) return Container();
 
-    if (eventTiles.length > 2 && !dailyEventsExpanded) {
-      eventTiles = eventTiles.sublist(0, 2);
+    final textStyle = style?.eventTitleTextStyle ??
+        Theme.of(context)
+            .textTheme
+            .bodySmall
+            ?.copyWith(fontWeight: FontWeight.bold);
+
+    if (numEvents > maxEvents && !dailyEventsExpanded) {
+      eventTiles = eventTiles.sublist(0, maxEvents);
       return Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -40,11 +61,8 @@ class AllDayEvents extends StatelessWidget {
           Padding(
             padding: const EdgeInsets.only(top: 4.0),
             child: Text(
-              '+${currentEvents.length - 2}',
-              style: Theme.of(context)
-                  .textTheme
-                  .bodySmall
-                  ?.copyWith(fontWeight: FontWeight.bold),
+              '+${currentEvents.length - maxEvents} more',
+              style: textStyle,
             ),
           ),
         ],

@@ -29,9 +29,9 @@ class Event {
 
   Event(
     this.start,
-    this.end,
     this.title,
     this.color, {
+    this.end,
     this.isAllDay,
     this.description,
     this.location,

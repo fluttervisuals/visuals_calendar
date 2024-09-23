@@ -7,6 +7,7 @@ import 'defaults/action_menu.dart';
 import 'functions/focused_day.dart';
 import 'functions/max_daily_events.dart';
 import 'functions/page_index.dart';
+import 'theme.dart';
 import 'types/calendar_format.types.dart';
 import 'types/event.types.dart';
 
@@ -23,7 +24,7 @@ class VisualsCalendar extends StatefulWidget {
   // Future events
   final Future<List<Event>>? futureEvents;
   // The calendar format. [day, week]
-  final CalendarFormat calendarFormat;
+  final CalendarFormat defaultFormat;
   // The event tile builder.
   final Widget Function(BuildContext context, Event event)? eventBuilder;
   // App bar builder.
@@ -34,14 +35,23 @@ class VisualsCalendar extends StatefulWidget {
     void Function(CalendarFormat) setFormat,
     List<CalendarFormat> avalableFormats,
   )? appBarBuilder;
+  // Enable selection for creating a new event.
+  final bool? selectionEnabled;
+  // Callback for selecting time to create a new event.
+  final void Function(DateTime start, DateTime end)? onTimeSelected;
+  // Style
+  final CalendarStyle? style;
 
   const VisualsCalendar({
     super.key,
-    required this.calendarFormat,
+    required this.defaultFormat,
     this.events,
     this.futureEvents,
     this.eventBuilder,
     this.appBarBuilder,
+    this.selectionEnabled,
+    this.onTimeSelected,
+    this.style,
   });
 
   @override
@@ -94,7 +104,7 @@ class VisualsCalendarState extends State<VisualsCalendar> {
   void initState() {
     super.initState();
     // Set the calendar format.
-    _calendarFormat = widget.calendarFormat;
+    _calendarFormat = widget.defaultFormat;
 
     // Set the page index.
     pageIndex = getPageIndex(_calendarFormat);
@@ -103,7 +113,7 @@ class VisualsCalendarState extends State<VisualsCalendar> {
     pageController = PageController(
       keepPage: false,
       initialPage: pageIndex,
-      viewportFraction: 1 / calendarFormatInts[widget.calendarFormat]!,
+      viewportFraction: 1 / calendarFormatInts[widget.defaultFormat]!,
     );
 
     // Set the events
@@ -207,6 +217,7 @@ class VisualsCalendarState extends State<VisualsCalendar> {
               title: Text(focusedMonth),
               actions: getActions(setToday, setFormat),
               forceMaterialTransparency: true,
+              backgroundColor: widget.style?.headerColor,
             ),
       body: Column(
         children: [
@@ -216,11 +227,15 @@ class VisualsCalendarState extends State<VisualsCalendar> {
             child: Row(
               children: [
                 HourColumn(
+                  focusedDate: getFocusedDate(pageIndex, _calendarFormat),
+                  calendarFormat: _calendarFormat,
                   height: _containerHeight,
                   scrollController: _mainController,
                   setDailyExpanded: setDailyExpanded,
                   maxDailyEvents: maxDailyEvents,
                   isDailyExpanded: dailyExpanded,
+                  style: widget.style,
+                  loading: loading,
                 ),
                 Expanded(
                   child: CalendarSection(
@@ -239,6 +254,10 @@ class VisualsCalendarState extends State<VisualsCalendar> {
                     maxDailyEvents: maxDailyEvents,
                     dailyEventsExpanded: dailyExpanded,
                     height: _containerHeight,
+                    style: widget.style,
+                    selectionEnabled: widget.selectionEnabled ?? false,
+                    onTimeSelected: widget.onTimeSelected,
+                    loading: loading,
                   ),
                 ),
               ],

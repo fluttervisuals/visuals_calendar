@@ -1,13 +1,15 @@
 import 'package:flutter/material.dart';
 
 import '../../functions/dates.dart';
+import '../../theme.dart';
 import '../../types/event.types.dart';
 
 /// A tile that displays an all day event.
 /// params [Event] The event to display.
 class AllDayEventTile extends StatelessWidget {
   final Event event;
-  const AllDayEventTile({super.key, required this.event});
+  final CalendarStyle? style;
+  const AllDayEventTile({super.key, required this.event, this.style});
 
   @override
   Widget build(BuildContext context) {
@@ -19,10 +21,11 @@ class AllDayEventTile extends StatelessWidget {
 
     final textColor = Theme.of(context).colorScheme.onSurface;
 
-    final titleStyle = textTheme.bodySmall?.copyWith(
-      color: textColor,
-      fontWeight: FontWeight.bold,
-    );
+    final titleStyle = style?.eventTitleTextStyle ??
+        textTheme.bodySmall?.copyWith(
+          color: textColor,
+          fontWeight: FontWeight.bold,
+        );
 
     return Padding(
       padding: const EdgeInsets.only(right: 4.0, top: 4.0),
