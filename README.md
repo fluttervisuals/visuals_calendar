@@ -173,17 +173,17 @@ Allows customization of the calendar's appearance. You can define styles for dif
 
 ## Contributing
 
-# How to Contribute
+### How to Contribute
 - Fork the repository.
 - Clone your fork and create a new branch.
 - Submit a pull request with your changes.
 
-# Open Issues and Roadmap
+### Open Issues and Roadmap
 - Check out the current issues and planned features on GitHub Issues.
 
-# Development Guidelines
+### Development Guidelines
 - Follow our coding standards and testing strategies.
 - Make sure to write unit tests for any new features.
 
-# How to Get in Touch
+### How to Get in Touch
 - Join the community on GitHub Discussions or our [Slack channel](https://join.slack.com/t/fluttervisuals/shared_invite/zt-2r2leq6s7-yvKguycKQ2M4bpSa_EvSeg).
