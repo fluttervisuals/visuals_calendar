@@ -22,7 +22,7 @@ and the Flutter guide for
 - Supports various views (e.g., daily, 3-day, weekly)
 
 
-<img src='lib/assets/display1.jpg' margin='20px' width='250px'><container width='50px'><img src='lib/assets/display2.jpg' width='250px'><img src='lib/assets/display3.jpg' width='250px'>
+<img src='lib/assets/display1.jpg' width='250px' style='margin-top: 50px'><img src='lib/assets/display2.jpg' width='250px'><img src='lib/assets/display3.jpg' width='250px'>
 
 ## Getting started
 
