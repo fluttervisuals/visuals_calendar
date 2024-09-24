@@ -55,13 +55,14 @@ class AllDayEvents extends StatelessWidget {
     if (numEvents > maxEvents && !dailyEventsExpanded) {
       eventTiles = eventTiles.sublist(0, maxEvents);
       return Column(
+        mainAxisAlignment: MainAxisAlignment.start,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           ...eventTiles,
           Padding(
             padding: const EdgeInsets.only(top: 4.0),
             child: Text(
-              '+${currentEvents.length - maxEvents} more',
+              '+${currentEvents.length - maxEvents}',
               style: textStyle,
             ),
           ),
@@ -71,7 +72,6 @@ class AllDayEvents extends StatelessWidget {
 
     if (dailyEventsExpanded) {
       return ListView(
-        shrinkWrap: true,
         children: eventTiles,
       );
     }
