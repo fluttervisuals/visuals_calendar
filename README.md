@@ -186,4 +186,4 @@ Allows customization of the calendar's appearance. You can define styles for dif
 - Make sure to write unit tests for any new features.
 
 # How to Get in Touch
-- Join the community on GitHub Discussions or our Slack channel.
+- Join the community on GitHub Discussions or our [Link Slack channel](https://join.slack.com/t/fluttervisuals/shared_invite/zt-2r2leq6s7-yvKguycKQ2M4bpSa_EvSeg).
