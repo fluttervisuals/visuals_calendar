@@ -29,23 +29,27 @@ class AllDayEventTile extends StatelessWidget {
 
     return Padding(
       padding: const EdgeInsets.only(right: 4.0, top: 4.0),
-      child: ClipPath(
-        clipper: ShapeBorderClipper(
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(3)),
-        ),
-        child: Container(
-          alignment: Alignment.centerLeft,
-          height: 20,
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(4),
-            color: tileColor,
+      child: GestureDetector(
+        onTap: () => event.onTap,
+        child: ClipPath(
+          clipper: ShapeBorderClipper(
+            shape:
+                RoundedRectangleBorder(borderRadius: BorderRadius.circular(3)),
           ),
-          child: Padding(
-            padding: const EdgeInsets.only(left: 4.0),
-            child: Text(
-              event.title,
-              style: titleStyle,
-              overflow: TextOverflow.ellipsis,
+          child: Container(
+            alignment: Alignment.centerLeft,
+            height: 20,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(4),
+              color: tileColor,
+            ),
+            child: Padding(
+              padding: const EdgeInsets.only(left: 4.0),
+              child: Text(
+                event.title,
+                style: titleStyle,
+                overflow: TextOverflow.ellipsis,
+              ),
             ),
           ),
         ),

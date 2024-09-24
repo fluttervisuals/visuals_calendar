@@ -218,6 +218,7 @@ class VisualsCalendarState extends State<VisualsCalendar> {
               actions: getActions(setToday, setFormat),
               forceMaterialTransparency: true,
               backgroundColor: widget.style?.headerColor,
+              automaticallyImplyLeading: true,
             ),
       body: Column(
         children: [

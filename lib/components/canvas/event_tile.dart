@@ -24,13 +24,16 @@ class EventTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      width: double.infinity,
-      child: (event.title == selectionID)
-          ? SelectionTile(event: event, style: style)
-          : eventBuilder != null
-              ? eventBuilder!(context, event)
-              : DefaultTile(event: event, style: style),
+    return GestureDetector(
+      onTap: () => event.onTap,
+      child: SizedBox(
+        width: double.infinity,
+        child: (event.title == selectionID)
+            ? SelectionTile(event: event, style: style)
+            : eventBuilder != null
+                ? eventBuilder!(context, event)
+                : DefaultTile(event: event, style: style),
+      ),
     );
   }
 }
@@ -110,22 +113,23 @@ class DefaultTile extends StatelessWidget {
 
     final titleStyle = style?.eventTitleTextStyle ??
         textTheme.bodySmall?.copyWith(
-          color: textColor,
-          fontWeight: FontWeight.bold,
-        );
+            color: textColor,
+            fontWeight: FontWeight.bold,
+            overflow: TextOverflow.clip);
 
     final subtitleStyle = style?.eventDescriptionTextStyle ??
-        textTheme.bodySmall?.copyWith(color: textColor);
+        textTheme.bodySmall?.copyWith(
+          color: textColor,
+          overflow: TextOverflow.clip,
+        );
 
     return Container(
       decoration: BoxDecoration(
         color: tileColor,
         borderRadius: BorderRadius.circular(4),
       ),
-      child: ClipPath(
-        clipper: ShapeBorderClipper(
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(3)),
-        ),
+      child: ClipRect(
+        clipBehavior: Clip.hardEdge,
         child: Container(
           decoration: BoxDecoration(
             border: Border(left: BorderSide(color: tileColor, width: 4)),

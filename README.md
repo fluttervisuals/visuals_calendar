@@ -21,6 +21,10 @@ and the Flutter guide for
 - Scroll and vertical zoom,
 - Supports various views (e.g., daily, 3-day, weekly)
 
+![Daily calendar](lib/assets/display1.jpg)
+![3-day calendar](lib/assets/display2.jpg)
+![Weekly calendar](lib/assets/display3.jpg)
+
 ## Getting started
 
 To install the package, add it to your `pubspec.yaml`:
@@ -93,39 +97,56 @@ VisualsCalendar({
 })
 ```
 
-1. defaultFormat (CalendarFormat)
+### defaultFormat 
+```dart 
+CalendarFormat
+```
 Required.
 Defines the default display format for the calendar.
 Available formats are [CalendarFormat.day, CalendarFormat.threedays, CalendarFormat.week].
 
-2. events (List<Event>?)
-Optional.
+### events 
+```dart
+List<Event>?
+```
 A list of Event objects to display on the calendar. Each Event includes details such as a title and date.
 
-3. futureEvents (Future<List<Event>>?)
-Optional.
+### futureEvents 
+```dart
+Future<List<Event>>?
+```
 Provides events asynchronously through a Future. While the future is being resolved, a loading indicator is shown on the calendar.
 
-4. eventBuilder (Widget Function(BuildContext context, Event event)?)
-Optional.
+### eventBuilder
+```dart
+Widget Function(BuildContext context, Event event)?
+```
 A function used to build custom event tiles.
 Allows for full control over how individual events are displayed.
 
-5. appBarBuilder (AppBar Function(BuildContext context, String currentMonth, void Function() setToday, void Function(CalendarFormat) setFormat, List<CalendarFormat> availableFormats)?)
-Optional.
+### appBarBuilder
+```dart
+AppBar Function(BuildContext context, String currentMonth, void Function() setToday, void Function(CalendarFormat) setFormat, List<CalendarFormat> availableFormats)?
+```
 A custom AppBar builder. Provides customization for the app bar, including the current month, a button to jump to today, and the ability to switch between day and week formats.
 
-6. selectionEnabled (bool?)
-Optional.
+### selectionEnabled
+```dart
+dart(bool?)
+```
 Enables or disables the selection functionality for creating new events. When true, users can select time slots to create events.
 
-7. onTimeSelected (void Function(DateTime start, DateTime end)?)
-Optional.
+### onTimeSelected
+```dart
+void Function(DateTime start, DateTime end)?
+```
 A callback function triggered when a time range is selected. It provides the start and end times of the selected range. Requires selectionEnabled to be true.
 Useful when allowing users to create new events directly from the calendar.
 
-8. style (CalendarStyle?)
-Optional.
+### style
+```dart
+CalendarStyle?
+```
 Allows customization of the calendar's appearance. You can define styles for different parts of the calendar, such as the background, text, and event tiles.
 
 
