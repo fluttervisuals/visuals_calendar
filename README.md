@@ -21,7 +21,8 @@ and the Flutter guide for
 - Scroll and vertical zoom,
 - Supports various views (e.g., daily, 3-day, weekly)
 
-![Daily calendar](lib/assets/display1.jpg) | ![3-day calendar](lib/assets/display2.jpg) | ![Weekly calendar](lib/assets/display3.jpg)
+
+<img src='lib/assets/display1.jpg' width='150px'><img src='lib/assets/display2.jpg' width='150px'><img src='lib/assets/display3.jpg' width='150px'>
 
 ## Getting started
 
