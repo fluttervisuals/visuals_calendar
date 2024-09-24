@@ -144,7 +144,7 @@ Useful when allowing users to create new events directly from the calendar.
 
 ### style
 ```dart
-CalendarStyle?
+class CalendarStyle {
   // The background color of the calendar.
   final Color? backgroundColor;
   // The color of the header.
@@ -166,6 +166,7 @@ CalendarStyle?
   final Color? timeIndicatorColor;
   // The color of the today indicator.
   final Color? todayIndicatorColor;
+}
 ```
 Allows customization of the calendar's appearance. You can define styles for different parts of the calendar, such as the background, text, and event tiles.
 
