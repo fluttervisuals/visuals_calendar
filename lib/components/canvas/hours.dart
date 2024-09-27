@@ -88,7 +88,9 @@ class HourColumnState extends State<HourColumn> {
               color: widget.style?.backgroundColor,
               width: 50,
               alignment: Alignment.bottomCenter,
-              child: const Divider(height: 1, thickness: 1),
+              child: widget.loading
+                  ? Container()
+                  : const Divider(height: 1, thickness: 1),
             ),
             Expanded(
               child: SingleChildScrollView(
@@ -116,14 +118,16 @@ class HourColumnState extends State<HourColumn> {
             ),
           ],
         ),
-        const Column(
+        Column(
           children: [
-            SizedBox(height: 60),
+            const SizedBox(height: 60),
             Expanded(
-              child: VerticalDivider(
-                width: 0.5,
-                thickness: 0.5,
-              ),
+              child: widget.loading
+                  ? Container()
+                  : const VerticalDivider(
+                      width: 0.5,
+                      thickness: 0.5,
+                    ),
             ),
           ],
         ),
