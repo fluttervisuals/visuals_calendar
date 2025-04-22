@@ -19,6 +19,8 @@ import 'types/event.types.dart';
 /// params [Widget] The event tile builder.
 /// params [AppBar] The app bar builder.
 class VisualsCalendar extends StatefulWidget {
+  // Optional loading state.
+  final bool? loading;
   // The events.
   final List<Event>? events;
   // Future events
@@ -31,6 +33,7 @@ class VisualsCalendar extends StatefulWidget {
   final AppBar Function(
     BuildContext context,
     String currentMonth,
+    CalendarFormat selectedFormat,
     void Function() setToday,
     void Function(CalendarFormat) setFormat,
     List<CalendarFormat> avalableFormats,
@@ -41,10 +44,15 @@ class VisualsCalendar extends StatefulWidget {
   final void Function(DateTime start, DateTime end)? onTimeSelected;
   // Style
   final CalendarStyle? style;
+  // Optional drawer for the calendar.
+  final Widget? drawer;
+  // Optionan end drawer for the calendar.
+  final Widget? endDrawer;
 
   const VisualsCalendar({
     super.key,
     required this.defaultFormat,
+    this.loading,
     this.events,
     this.futureEvents,
     this.eventBuilder,
@@ -52,6 +60,8 @@ class VisualsCalendar extends StatefulWidget {
     this.selectionEnabled,
     this.onTimeSelected,
     this.style,
+    this.drawer,
+    this.endDrawer,
   });
 
   @override
@@ -138,6 +148,30 @@ class VisualsCalendarState extends State<VisualsCalendar> {
     }
   }
 
+  @override
+  void didUpdateWidget(covariant VisualsCalendar oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.events != null && widget.events != oldWidget.events) {
+      setState(() {
+        events = widget.events!;
+        maxDailyEvents = getMaxDailyEvents(events, pageIndex, _calendarFormat);
+      });
+    }
+    if (widget.futureEvents != null &&
+        widget.futureEvents != oldWidget.futureEvents) {
+      loading = true;
+      futureEvents = widget.futureEvents!;
+      futureEvents.then((value) {
+        setState(() {
+          events = value;
+          loading = false;
+          maxDailyEvents =
+              getMaxDailyEvents(events, pageIndex, _calendarFormat);
+        });
+      });
+    }
+  }
+
   // Set the calendar format.
   void setFormat(CalendarFormat format) {
     setState(() {
@@ -204,10 +238,13 @@ class VisualsCalendarState extends State<VisualsCalendar> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      drawer: widget.drawer,
+      endDrawer: widget.endDrawer,
       appBar: widget.appBarBuilder != null
           ? widget.appBarBuilder!(
               context,
               focusedMonth,
+              _calendarFormat,
               setToday,
               setFormat,
               calendarFormatInts.keys.toList(),
@@ -222,7 +259,7 @@ class VisualsCalendarState extends State<VisualsCalendar> {
             ),
       body: Column(
         children: [
-          if (loading)
+          if (widget.loading ?? loading)
             const LinearProgressIndicator(backgroundColor: Colors.transparent),
           Expanded(
             child: Row(

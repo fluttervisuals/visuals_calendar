@@ -1,3 +1,7 @@
+## 0.0.4
+
+* Minor fixes.
+
 ## 0.0.3
 
 * Increased compatibility with earlier intl versions.
