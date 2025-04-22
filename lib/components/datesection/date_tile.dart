@@ -32,23 +32,27 @@ class DateTile extends StatelessWidget {
         );
 
     return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
       children: [
         // Name of day in short format (e.g. Mon)
         Text(DateFormat('EEE').format(date), style: textStyle),
         // Date number inside a circle
-        Container(
-          width: 40,
-          height: 40,
-          decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            color: isToday ? primary : Colors.transparent,
-          ),
-          child: Center(
-            child: Text(date.day.toString(),
-                style: TextStyle(
-                  color: isToday ? onPrimary : onSurface,
-                  fontWeight: FontWeight.bold,
-                )),
+        Padding(
+          padding: const EdgeInsets.only(left: 2, right: 2, bottom: 2),
+          child: Container(
+            width: 36,
+            height: 36,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              color: isToday ? primary : Colors.transparent,
+            ),
+            child: Center(
+              child: Text(date.day.toString(),
+                  style: TextStyle(
+                    color: isToday ? onPrimary : onSurface,
+                    fontWeight: FontWeight.bold,
+                  )),
+            ),
           ),
         ),
       ],

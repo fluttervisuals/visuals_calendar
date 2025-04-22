@@ -9,7 +9,7 @@ import 'package:flutter/material.dart';
 /// params [description] The description of the event.
 /// params [location] The location of the event.
 /// returns [Event] The event.
-class Event {
+class Event<T> {
   // Start date and time of the event
   final DateTime start;
   // End date and time of the event
@@ -22,10 +22,14 @@ class Event {
   final bool? isAllDay;
   // Description of the event
   final String? description;
+  // Label of the event
+  final String? label;
   // Location of the event
   final String? location;
   // On tap event
   final Function? onTap;
+  // Event type
+  final String? type;
 
   Event(
     this.start,
@@ -34,8 +38,10 @@ class Event {
     this.end,
     this.isAllDay,
     this.description,
+    this.label,
     this.location,
     this.onTap,
+    this.type,
   });
 }
 

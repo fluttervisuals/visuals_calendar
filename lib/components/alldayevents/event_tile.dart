@@ -16,8 +16,9 @@ class AllDayEventTile extends StatelessWidget {
     final TextTheme textTheme = Theme.of(context).textTheme;
     final past = isEventBeforeToday(event);
 
-    final tileColor =
-        past ? event.color.withOpacity(0.2) : event.color.withOpacity(0.5);
+    final tileColor = past
+        ? event.color.withValues(alpha: .2)
+        : event.color.withValues(alpha: 0.5);
 
     final textColor = Theme.of(context).colorScheme.onSurface;
 

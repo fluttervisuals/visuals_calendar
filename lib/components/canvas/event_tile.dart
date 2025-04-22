@@ -25,7 +25,7 @@ class EventTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: () => event.onTap,
+      onTap: () => event.onTap?.call(),
       child: SizedBox(
         width: double.infinity,
         child: (event.title == selectionID)
@@ -108,8 +108,9 @@ class DefaultTile extends StatelessWidget {
 
     final past = isEventPast(event);
 
-    final tileColor =
-        past ? event.color.withOpacity(0.2) : event.color.withOpacity(0.5);
+    final tileColor = past
+        ? event.color.withValues(alpha: .2)
+        : event.color.withValues(alpha: 0.5);
 
     final titleStyle = style?.eventTitleTextStyle ??
         textTheme.bodySmall?.copyWith(
@@ -155,6 +156,25 @@ class DefaultTile extends StatelessWidget {
                 Padding(
                   padding: const EdgeInsets.only(left: 2.0, right: 2.0),
                   child: Text(event.description!, style: subtitleStyle),
+                ),
+              if (event.label != null) const Spacer(),
+              if (event.label != null)
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 4.0, right: 4.0),
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: Theme.of(context).colorScheme.surface,
+                      borderRadius: BorderRadius.circular(4),
+                    ),
+                    padding: const EdgeInsets.all(2.0),
+                    child: Text(
+                      event.label ?? '',
+                      style: subtitleStyle?.copyWith(
+                        fontWeight: FontWeight.bold,
+                      ),
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
                 ),
             ],
           ),

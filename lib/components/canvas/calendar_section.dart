@@ -5,8 +5,8 @@ import '../../functions/header_height.dart';
 import '../../theme.dart';
 import '../../types/calendar_format.types.dart';
 import '../../types/event.types.dart';
-import '../datesection/date_tile.dart';
 import '../alldayevents/events.dart';
+import '../datesection/date_tile.dart';
 import 'event_column.dart';
 
 class CalendarSection extends StatefulWidget {
