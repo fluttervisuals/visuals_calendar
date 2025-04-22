@@ -1,6 +1,6 @@
 name: visuals_calendar
 description: A modular Flutter Calendar package.
-version: 0.0.2
+version: 0.0.3
 homepage: https://github.com/williamskaug/visuals_calendar
 
 environment:
