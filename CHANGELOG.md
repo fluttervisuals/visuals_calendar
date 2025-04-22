@@ -1,3 +1,7 @@
+## 0.0.3
+
+* Increased compatibility with earlier intl versions.
+
 ## 0.0.2
 
 * Minor updates to design and additional event fields.
